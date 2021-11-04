@@ -52,7 +52,7 @@ def extract_article_links(kategory, startpage = 1, endpage = 100 ):
                 article_links.append(link)
 
         # write links to file:
-        with open('sidor8_links' + "_" + kategory + '.txt', 'a', encoding='UTF-8' ) as f:
+        with open('links/sidor8_links' + "_" + kategory + '.txt', 'a', encoding='UTF-8' ) as f:
             for link in article_links:
                 f.write(link + "\n")
 
@@ -67,7 +67,7 @@ def extract_article_links(kategory, startpage = 1, endpage = 100 ):
 def extract_articles(kategory, start, end):
     #choose articles
     links = []
-    with open('sidor8_links' + "_" + kategory + '.txt', 'r') as f:
+    with open('links/sidor8_links' + "_" + kategory + '.txt', 'r') as f:
         for position, line in enumerate(f):
             if position >= start and position <= end:
                 links.append(line)
@@ -77,7 +77,7 @@ def extract_articles(kategory, start, end):
         article_content = extract_article_content(link)
         articles.append(article_content)
 
-    with open('sidor8_articles_' + kategory + "_" + str(start) + "-" + str(end) + ".json", "w", encoding='UTF-8' ) as f:
+    with open('articles/sidor8_articles_' + kategory + "_" + str(start) + "-" + str(end) + ".json", "w", encoding='UTF-8' ) as f:
         json.dump(articles, f, indent=3, ensure_ascii=False)
 
 # given a link to an article, return a json object with link, title and text
@@ -102,7 +102,7 @@ def extract_kategory(kategory, start, end):
     extract_article_links(kategory, start, end)
     print("Links extracted.")
     print("Extract Articles...")
-    num_lines = sum(1 for line in open('sidor8_links' + "_" + kategory + '.txt'))
+    num_lines = sum(1 for line in open('links/sidor8_links' + "_" + kategory + '.txt'))
     i = start
     while True:
         print("Article Batch " + str(i))
@@ -166,7 +166,7 @@ def freq_kategory(kategory, start):
     i = start
     while exists:
         try:
-            with open("sidor8_articles_" + kategory + "_" + str(1+(i-1)*ARTICLES_PER_FILE) + "-" + str(i*ARTICLES_PER_FILE) + "._freq.json", "r", encoding='UTF-8') as f:
+            with open("articles_freq/sidor8_articles_" + kategory + "_" + str(1+(i-1)*ARTICLES_PER_FILE) + "-" + str(i*ARTICLES_PER_FILE) + "._freq.json", "r", encoding='UTF-8') as f:
                 tokens_freq = json.load(f)
 
             for token in tokens_freq:
@@ -181,7 +181,7 @@ def freq_kategory(kategory, start):
             exists = False
     # sort descending 
     sorted_dic = collections.OrderedDict(sorted(frequency.items(), key=lambda item: item[1], reverse=True))
-    with open("sidor8_freq" + "_" + kategory + ".json", "w", encoding='UTF-8' ) as f:
+    with open("kategory_freq/sidor8_freq" + "_" + kategory + ".json", "w", encoding='UTF-8' ) as f:
         json.dump(sorted_dic, f, indent=3, ensure_ascii=False)
 
 # calculate all freqencies of a kategory
@@ -190,7 +190,7 @@ def calculate_partial_freqs(kategory, start):
     exists = True
     while exists:
         try:
-            file_name = "sidor8_articles_" + kategory + "_" + str(1+(i-1)*ARTICLES_PER_FILE) + "-" + str(i*ARTICLES_PER_FILE) + ".json"
+            file_name = "articles/sidor8_articles_" + kategory + "_" + str(1+(i-1)*ARTICLES_PER_FILE) + "-" + str(i*ARTICLES_PER_FILE) + ".json"
             freq_tokens_file(file_name)
             i += 1
         except Exception as e:
@@ -200,7 +200,7 @@ def calculate_partial_freqs(kategory, start):
 
 #normalize, make lower case, remove numbers and other non usefull words
 def normalize(kategory):
-    with open("sidor8_freq" + "_" + kategory + ".json", "r", encoding='UTF-8' ) as f:
+    with open("kategory_freq/sidor8_freq" + "_" + kategory + ".json", "r", encoding='UTF-8' ) as f:
         freq_dict = json.load(f)
     # get list of names, that should be removed
     with open("names,json", "r", encoding='UTF-8' ) as f:
@@ -229,7 +229,7 @@ def normalize(kategory):
             new_dict[lowerkey] = freq_dict[key]
     # sort descending 
     sorted_dic = collections.OrderedDict(sorted(new_dict.items(), key=lambda item: item[1], reverse=True))
-    with open("sidor8_freq" + "_" + kategory + "_norm.json", "w", encoding='UTF-8' ) as f:
+    with open("kategory_freq/sidor8_freq" + "_" + kategory + "_norm.json", "w", encoding='UTF-8' ) as f:
         json.dump(sorted_dic, f, indent=3, ensure_ascii=False)
 
 # find person names in a text (NER)
@@ -249,7 +249,7 @@ def find_names(kategory, start, name_freq):
     exists = True
     while exists:
         try:
-            file_name = "sidor8_articles_" + kategory + "_" + str(1+(i-1)*ARTICLES_PER_FILE) + "-" + str(i*ARTICLES_PER_FILE) + ".json"
+            file_name = "articles/sidor8_articles_" + kategory + "_" + str(1+(i-1)*ARTICLES_PER_FILE) + "-" + str(i*ARTICLES_PER_FILE) + ".json"
             articles = get_articles(file_name)
             for article in articles:
                 name_list = names_in_text(article["text"])
@@ -270,7 +270,7 @@ def total_freq():
     for kategory in KATEGORIES:
         try:
             # for freqency
-            with open("sidor8_freq" + "_" + kategory + ".json", "r", encoding='UTF-8' ) as f:
+            with open("kategory_freq/sidor8_freq" + "_" + kategory + ".json", "r", encoding='UTF-8' ) as f:
                 freq_dict = json.load(f)
 
             for token in freq_dict:
@@ -280,7 +280,7 @@ def total_freq():
                     frequency[token] = freq_dict[token]
 
             # for norm frequency
-            with open("sidor8_freq" + "_" + kategory + "_norm.json", "r", encoding='UTF-8' ) as f:
+            with open("kategory_freq/sidor8_freq" + "_" + kategory + "_norm.json", "r", encoding='UTF-8' ) as f:
                 freq_dict = json.load(f)
 
             for token in freq_dict:
@@ -319,7 +319,7 @@ def main():
     #     start = 1
     #     name_freq = find_names(kategory, start, name_freq)
     # sorted_dic = collections.OrderedDict(sorted(name_freq.items(), key=lambda item: item[1], reverse=True))
-    # with open("sidor8_freq" + "_names" + ".json", "w", encoding='UTF-8' ) as f:
+    # with open("kategory_freq/sidor8_freq" + "_names" + ".json", "w", encoding='UTF-8' ) as f:
     #     json.dump(sorted_dic, f, indent=3, ensure_ascii=False)
 
     for kategory in KATEGORIES:
