@@ -1,5 +1,5 @@
-# Sidor8 - Freq List
- Data Mining - Swedisch Freqency List from Sidor8
+# Swedish Frequency List
+Swedisch Frequency List with help from data mining articles from Sidor8.
 
 ## Data Mining
 Get Articles from the website https://8sidor.se.

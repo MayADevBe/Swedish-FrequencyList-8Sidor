@@ -111,6 +111,8 @@ def extract_kategory(kategory, start, end):
         if i > end:
             break
 
+
+
 """
 Natural Language Processing
 """
